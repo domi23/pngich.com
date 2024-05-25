@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Pinterest</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Poetsen+One&display=swap" rel="stylesheet">
+    <style>
+        .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+    }
+
+    .search-form {
+        display: flex;
+        align-items: center;
+    }
+
+    .search-form input[type="text"] {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px 0 0 5px;
+        outline: none;
+    }
+
+    .search-form button {
+        padding: 5px 10px;
+        border: 1px solid #4CAF50;
+        border-radius: 0 5px 5px 0;
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+    }
+
+    .search-form button:hover {
+        background-color: #45a049;
+    }
+
+    .logo-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .logo-image {
+        width: 50px;
+        height: 50px;
+        margin-right: 10px;
+    }
+
+    .logo-text {
+        margin-left: 10px;
+        margin-top: 5px;
+        font-family: "Oswald", sans-serif;
+        font-weight: 400;
+    }
+
+    .container-image {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .post {
+        text-align: center;
+    }
+
+    .post img {
+        width: 100%;
+        height: 250px; 
+        max-height: 250px;
+        max-width: 100%;
+        object-fit: cover; 
+        border-radius: 10px;
+        border: 2px solid #45a04934;
+        cursor: pointer;
+        box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.158);
+    }
+
+    .post .content {
+        margin-top: 10px;
+        font-size: 16px;
+        text-align: left;
+    }
+
+    .post .user-info {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    .post .user-info img {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+
+    .post .user-info .username {
+        font-weight: bold;
+    }
+
+    @media screen and (min-width: 1366px) {
+        .container-image {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media screen and (min-width: 1500px) {
+        .container-image {
+            grid-template-columns: repeat(4, 1fr); 
+        }
+    }
+
+    @media screen and (min-width: 1700px) {
+        .container-image {
+            grid-template-columns: repeat(5, 1fr); 
+        }
+    }
+
+    @media screen and (min-width: 2560px) {
+        .container-image {
+            grid-template-columns: repeat(6, 1fr);
+        }
+    }
+
+    
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo-container">
+                <img class="logo-image" src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+                <h1 class="logo-text">QUNTER</h1>
+            </div>
+            <div class="search-container">
+                <form action="{{ url_for('search_users') }}" method="get" class="search-form">
+                    <input type="text" name="query" placeholder="Поиск пользователей">
+                    <button type="submit">Поиск</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    {% if session.logged_in %}
+    <div class="subscription-panel">
+        <h2>Подписан:</h2>
+        <div class="subscribed-users">
+            {% for user in subscribed_users %}
+                <a href="{{ url_for('view_profile', user_id=user.user_id) }}">
+                    {% if user.avatar %}
+                        <img src="{{ url_for('static', filename='user_avatars/' + user.avatar) }}" alt="{{ user.username }}">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='user_avatars/default-avatar.jpg') }}" alt="{{ user.username }}">
+                    {% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    
+        <div class="scroll-buttons">
+            <button class="scroll-button scroll-button-prev" onclick="scrollUsers('prev')">Назад</button>
+            <button class="scroll-button scroll-button-next" onclick="scrollUsers('next')">Вперёд</button>
+        </div>
+    </div>
+    {% endif %}
+
+
+    <main>
+        <section class="container-image">
+            {% for post in posts[::-1] %}
+            <div class="post">
+                <img src="{{ url_for('static', filename='user_posts/' + post.image_path) }}" alt="Post Image">
+                <div class="content">
+                    {{ post.content }}
+                </div>
+                <div class="user-info">
+                    {% if post.avatar %}
+                        <img src="{{ url_for('static', filename='user_avatars/' + post.avatar) }}" alt="User Avatar">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='user_avatars/default-avatar.jpg') }}" alt="Default Avatar">
+                    {% endif %}
+                    <span class="username">{{ post.username }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+    </main>
+    
+
+    <footer>
+        <div class="container">
+            {% if session.logged_in %}
+                <button class="post-button" onclick="window.location.href='{{ url_for('post_image') }}'">
+                    <img src="{{ url_for('static', filename='upload-icon.png') }}" alt="Upload">
+                </button>
+                <a class="button login-button" href="{{ url_for('logout') }}">ВЫХОД</a>
+                <a class="button profile-button" href="{{ url_for('profile') }}">МОЙ ПРОФИЛЬ</a>
+            {% else %}
+                <a class="button login-button" href="{{ url_for('register') }}">ВХОД/РЕГИСТРАЦИЯ</a>
+            {% endif %}
+        </div>
+    </footer>
+
+    <div id="myModal" class="modal"> 
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImg">
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

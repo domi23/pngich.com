@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'Мой профиль' if is_owner else 'Профиль пользователя' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .container {
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .profile-info {
+            margin-top: 20px;
+            font-family: "Oswald", sans-serif;
+            font-weight: 600;
+        }
+
+        .profile-info img {
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+        }
+
+        .profile-info h2 {
+            margin-top: 10px;
+            font-family: "Oswald", sans-serif;
+            font-weight: 600;
+        }
+
+        .divider {
+            width: 50%;
+            height: 1px;
+            background-color: #ccc;
+            margin: 20px auto;
+        }
+
+        .profile-settings form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            font-family: "Oswald", sans-serif;
+            font-weight: 600;
+        }
+
+        .profile-settings form input[type="file"],
+        .profile-settings form input[type="text"],
+        .profile-settings form input[type="password"] {
+            width: 80%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .profile-settings form button[type="submit"] {
+            width: 50%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: "Oswald", sans-serif;
+            font-weight: 600;
+        }
+
+        .user-posts {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .post {
+            text-align: center;
+        }
+
+        .post img {
+            width: 100%;
+            height: 250px; /* Фиксированная высота */
+            object-fit: cover; /* Обеспечивает сохранение пропорций изображения */
+            border-radius: 10px;
+            border: 2px solid #45a04934;
+            cursor: pointer;
+            box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.158);
+        }
+
+        .post .content {
+            margin-top: 10px;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        .post .user-info {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .post .user-info img {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .post .user-info .username {
+            font-weight: bold;
+        }
+
+        .post-button img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .button a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .close {
+            color: #fff;
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            font-size: 30px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 700px;
+            max-width: 80%;
+            object-fit: contain;
+        }
+
+        .animate {
+            animation: zoom 0.6s;
+        }
+
+        @keyframes zoom {
+            from {
+                transform: scale(0)
+            }
+            to {
+                transform: scale(1)
+            }
+        }
+
+
+        .moderator-icon {
+            width: 20px;
+            height: 20px;
+            background-image: url('/static/moderator_icon.png'); 
+            background-size: cover;
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .leader-icon {
+            width: 20px;
+            height: 20px;
+            background-image: url('/static/crown.png'); 
+            background-size: cover;
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .emperor-icon {
+            width: 40px;
+            height: 20px;
+            background-image: url('/static/eagle.png'); 
+            background-size: cover;
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .hat-icon {
+            width: 20px;
+            height: 20px;
+            background-image: url('/static/hat.png'); 
+            background-size: cover;
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>{{ 'Мой профиль' if is_owner else 'Профиль пользователя' }}</h1>
+        </div>
+    </header>
+    <main>
+        <section class="container">
+
+            <div class="profile-info">
+                <img src="{{ url_for('static', filename='user_avatars/' + user_info.avatar) }}" alt="Аватар пользователя">
+                <h2>{{ user_info.username }} 
+                    
+                {% if user_info.user_id == 5 %}
+                    <span class="moderator-icon" title="Модератор"></span>
+                {% endif %}
+
+                {% if user_info.user_id == 1 %}
+                    <span class="leader-icon" title="Создатель"></span>
+                {% endif %}
+
+                {% if user_info.user_id == 4 %}
+                    <span class="emperor-icon" title="Император"></span>
+                {% endif %}
+
+                {% if user_info.user_id == 6 %}
+                    <span class="hat-icon" title="Фокусти"></span>
+                {% endif %}
+
+                
+
+                </h2>
+                            
+                <p style="margin-top: 5px;" >Подписчики: {{ num_followers }}</p>
+                <p style="margin-top: 5px;" >Подписок: {{ num_following }}</p>
+                            
+                {% if not is_owner %}
+                    {% if not is_subscribed %}
+                        <form action="{{ url_for('subscribe', user_id=user_info.user_id) }}" method="GET">
+                            <button class="button" type="submit" style="margin-top: 10px;">Подписаться</button>
+                        </form>
+                    {% else %}
+                        <form action="{{ url_for('unsubscribe', user_id=user_info.user_id) }}" method="GET">
+                            <button class="button"  type="submit" style="margin-top: 10px;">Отписаться</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            </div>
+            
+            
+            
+            
+            <div class="divider"></div>
+            {% if is_owner %}
+            <div class="profile-settings">
+                <form action="{{ url_for('update_profile') }}" method="post" enctype="multipart/form-data" class="edit-profile">
+                    <input type="file" name="avatar" accept="image/*">
+                    <input type="text" name="username" placeholder="Новый ник (не более 15 символов)" maxlength="15">
+                    <input type="password" name="password" placeholder="Новый пароль (не более 10 символов)" maxlength="10">
+                    <button type="submit">Сохранить изменения</button>
+                </form>
+            </div>
+            {% endif %}
+            <div class="user-posts">
+                {% if not user_posts %}
+                    <p>У вас пока нет постов.</p>
+                {% else %}
+                    {% for post in user_posts %}
+                    <div class="post">
+                        <img src="{{ url_for('static', filename='user_posts/' + post.image_path) }}" alt="Post Image" onclick="openModal('{{ url_for('static', filename='user_posts/' + post.image_path) }}')">
+                        <div class="content">
+                            {{ post.content }}
+                        </div>
+                        <div class="user-info">
+                            <span class="username">{{ post.username }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <div id="myModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImg">
+    </div>
+
+    
+    <footer>
+        <div class="container">
+            {% if is_owner %}
+            <button class="post-button" onclick="window.location.href='{{ url_for('post_image') }}'"><img src="{{ url_for('static', filename='upload-icon.png') }}" alt="Upload"></button>
+            <button class="button edit-button">РЕДАКТИРОВАТЬ ПРОФИЛЬ</button>
+            <a class="button back-button" href="{{ url_for('profile') }}">НАЗАД</a>
+            {% else %}
+            <a class="button back-button" href="{{ url_for('index') }}">НА ГЛАВНУЮ</a>
+            {% endif %}
+            <a class="button login-button" href="{{ url_for('logout') }}">ВЫХОД</a>
+        </div>
+    </footer>
+    <script src="{{ url_for('static', filename='profilescript.js') }}"></script>
+</body>
+</html>

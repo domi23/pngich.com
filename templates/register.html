@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Register</title>
+    <link rel="stylesheet" href="/static/registerstyles.css">
+</head>
+<body>
+    <div class="login-container">
+        <form class="login-form" action="/login" method="POST" autocomplete="off">
+            <h2>Вход</h2>
+            {% if login_error %}
+                <p style="color: red;">{{ login_error }}</p>
+            {% endif %}
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Пароль" required>
+            <button type="submit">Войти</button>
+        </form>
+        <form class="register-form" style="display: none;" action="/register" method="POST" autocomplete="off">
+            <h2>Регистрация</h2>
+            {% if register_error %}
+                <p style="color: red;">{{ register_error }}</p>
+            {% endif %}
+            <input id="username" type="text" name="username" placeholder="Имя (не более 15 символов)" required maxlength="15"> 
+            <input id="email" type="email" name="email" placeholder="Email (не более 25 символов)" required maxlength="25">
+            <input id="password" type="password" name="password" placeholder="Пароль (не более 10 символов)" required maxlength="10">
+            <input id="confirm_password" type="password" name="confirm_password" placeholder="Подтвердите пароль" required>
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+        <button id="toggleBtn">Регистрация</button>
+        <a href="/" class="return-link">Вернуться на сайт</a>
+    </div>
+    <script src="/static/scriptregister.js"></script>
+    <script>
+        const toggleBtn = document.getElementById('toggleBtn');
+        const loginForm = document.querySelector('.login-form');
+        const registerForm = document.querySelector('.register-form');
+
+        toggleBtn.addEventListener('click', function() {
+            if (toggleBtn.textContent === 'Регистрация') {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                toggleBtn.textContent = 'Вход';
+            } else {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                toggleBtn.textContent = 'Регистрация';
+            }
+        });
+
+        // Check if there are any errors to show the correct form
+        {% if register_error %}
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            toggleBtn.textContent = 'Вход';
+        {% elif login_error %}
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            toggleBtn.textContent = 'Регистрация';
+        {% endif %}
+    </script>
+</body>
+</html>
